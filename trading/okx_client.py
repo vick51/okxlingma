@@ -13,6 +13,11 @@ class OKXClient:
     
     def __init__(self):
         """初始化OKX客户端"""
+        # 调试：打印配置状态
+        logger.info(f"API Key配置状态: {'已设置' if Config.OKX_API_KEY and Config.OKX_API_KEY != 'your_api_key_here' else '未设置'}")
+        logger.info(f"Secret Key配置状态: {'已设置' if Config.OKX_SECRET_KEY and Config.OKX_SECRET_KEY != 'your_secret_key_here' else '未设置'}")
+        logger.info(f"Passphrase配置状态: {'已设置' if Config.OKX_PASSPHRASE and Config.OKX_PASSPHRASE != 'your_passphrase_here' else '未设置'}")
+        
         # 验证API密钥
         if not Config.OKX_API_KEY or Config.OKX_API_KEY == 'your_api_key_here':
             logger.warning("⚠️  OKX API密钥未配置，使用模拟模式")
@@ -30,22 +35,26 @@ class OKXClient:
             logger.error("❌ OKX Passphrase未配置")
             raise ValueError("请配置OKX_PASSPHRASE")
         
-        self.exchange = ccxt.okx({
-            'apiKey': Config.OKX_API_KEY,
-            'secret': Config.OKX_SECRET_KEY,
-            'password': Config.OKX_PASSPHRASE,
-            'options': {
-                'defaultType': 'swap',  # 永续合约
-                'adjustForTimeDifference': True
-            },
-            'timeout': 30000,
-            'enableRateLimit': True,
-        })
-        self.symbol = Config.SYMBOL
-        self.leverage = Config.LEVERAGE
-        
-        # 测试连接
-        self._test_connection()
+        try:
+            self.exchange = ccxt.okx({
+                'apiKey': str(Config.OKX_API_KEY),
+                'secret': str(Config.OKX_SECRET_KEY),
+                'password': str(Config.OKX_PASSPHRASE),
+                'options': {
+                    'defaultType': 'swap',  # 永续合约
+                    'adjustForTimeDifference': True
+                },
+                'timeout': 30000,
+                'enableRateLimit': True,
+            })
+            self.symbol = Config.SYMBOL
+            self.leverage = Config.LEVERAGE
+            
+            # 测试连接
+            self._test_connection()
+        except Exception as e:
+            logger.error(f"❌ OKX客户端初始化失败: {e}")
+            raise
     
     def _test_connection(self):
         """测试交易所连接"""
