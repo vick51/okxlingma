@@ -74,6 +74,19 @@ EMAIL_RECIPIENT=vick0515@outlook.com
 
 #### 3. 启动服务
 
+**Windows用户（推荐）**:
+```bash
+# 双击运行或在命令行执行
+start.bat
+```
+
+**Linux/Mac用户（推荐）**:
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+**或使用Docker Compose命令**:
 ```bash
 docker-compose up -d
 ```

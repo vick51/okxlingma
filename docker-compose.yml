@@ -2,27 +2,45 @@ version: '3.8'
 
 services:
   okx-trading:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: okx-trading-system
     ports:
-      - "5000:5000"
+      - "${WEB_PORT:-5000}:${WEB_PORT:-5000}"
     volumes:
       # 挂载数据目录（数据库持久化）
       - ./data:/app/data
       # 挂载环境配置文件
-      - ./.env:/app/.env
+      - ./.env:/app/.env:ro
     environment:
       - TZ=Asia/Shanghai
+      - FLASK_PORT=${WEB_PORT:-5000}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/status"]
+      test: ["CMD", "curl", "-f", "http://localhost:${WEB_PORT:-5000}/api/status"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 15s
     # 资源限制
     deploy:
       resources:
         limits:
           memory: 512M
           cpus: '0.5'
+        reservations:
+          memory: 128M
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # 网络配置
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge
