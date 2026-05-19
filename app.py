@@ -37,10 +37,20 @@ def init_trading_engine():
     
     try:
         okx_client = OKXClient()
-        trading_engine = TradingStrategy()
-        logger.info("交易引擎初始化成功")
+        
+        # 检查API密钥是否配置
+        if okx_client.exchange is None:
+            logger.warning("⚠️  API密钥未配置，系统将以只读模式运行")
+            logger.warning("📝 请在.env文件中配置OKX API密钥以启用交易功能")
+            trading_engine = None
+        else:
+            trading_engine = TradingStrategy()
+            logger.info("✅ 交易引擎初始化成功")
     except Exception as e:
-        logger.error(f"交易引擎初始化失败: {e}")
+        logger.error(f"❌ 交易引擎初始化失败: {e}")
+        logger.warning("⚠️  系统将以只读模式运行")
+        trading_engine = None
+        okx_client = None
 
 
 def broadcast_updates():

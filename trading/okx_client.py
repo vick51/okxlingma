@@ -13,6 +13,23 @@ class OKXClient:
     
     def __init__(self):
         """初始化OKX客户端"""
+        # 验证API密钥
+        if not Config.OKX_API_KEY or Config.OKX_API_KEY == 'your_api_key_here':
+            logger.warning("⚠️  OKX API密钥未配置，使用模拟模式")
+            logger.warning("请在.env文件中配置真实的OKX API密钥")
+            self.exchange = None
+            self.symbol = Config.SYMBOL
+            self.leverage = Config.LEVERAGE
+            return
+        
+        if not Config.OKX_SECRET_KEY or Config.OKX_SECRET_KEY == 'your_secret_key_here':
+            logger.error("❌ OKX Secret Key未配置")
+            raise ValueError("请配置OKX_SECRET_KEY")
+        
+        if not Config.OKX_PASSPHRASE or Config.OKX_PASSPHRASE == 'your_passphrase_here':
+            logger.error("❌ OKX Passphrase未配置")
+            raise ValueError("请配置OKX_PASSPHRASE")
+        
         self.exchange = ccxt.okx({
             'apiKey': Config.OKX_API_KEY,
             'secret': Config.OKX_SECRET_KEY,
