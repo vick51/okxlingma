@@ -1,0 +1,36 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+.pytest_cache
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# 数据文件（不打包到镜像）
+data/*.db
+data/*.log
+
+# 文档
+*.md
+docs/
+
+# 其他
+.env
+.dockerignore
+Dockerfile
+docker-compose.yml

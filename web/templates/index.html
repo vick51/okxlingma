@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OKX量化交易系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <h1>OKX量化交易系统</h1>
+            <div class="header-info">
+                <span id="current-time"></span>
+            </div>
+        </header>
+
+        <!-- 网络状态 -->
+        <section class="card network-status">
+            <h2>网络状态</h2>
+            <div class="status-content">
+                <div class="status-item">
+                    <span class="label">连接状态:</span>
+                    <span id="connection-status" class="status-badge disconnected">检测中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">延迟:</span>
+                    <span id="latency">-- ms</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">最后更新:</span>
+                    <span id="last-update">--</span>
+                </div>
+                <button onclick="checkNetwork()" class="btn btn-primary">检测网络</button>
+            </div>
+        </section>
+
+        <!-- 账户概览 -->
+        <section class="card account-overview">
+            <h2>账户概览</h2>
+            <div class="balance-grid">
+                <div class="balance-item">
+                    <div class="balance-label">总余额</div>
+                    <div class="balance-value" id="total-balance">-- USDT</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">可用余额</div>
+                    <div class="balance-value" id="available-balance">-- USDT</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">未实现盈亏</div>
+                    <div class="balance-value" id="unrealized-pnl">-- USDT</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">累计收益</div>
+                    <div class="balance-value" id="total-pnl">-- USDT</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 当前持仓 -->
+        <section class="card positions">
+            <h2>当前持仓</h2>
+            <div id="positions-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>币种</th>
+                            <th>方向</th>
+                            <th>数量</th>
+                            <th>杠杆</th>
+                            <th>开仓价</th>
+                            <th>当前价</th>
+                            <th>盈亏</th>
+                            <th>收益率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="positions-body">
+                        <tr>
+                            <td colspan="8" class="no-data">暂无持仓</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 历史交易 -->
+        <section class="card orders">
+            <h2>历史交易</h2>
+            
+            <!-- 筛选器 -->
+            <div class="filters">
+                <select id="filter-period" onchange="loadOrders()">
+                    <option value="today">今天</option>
+                    <option value="week">本周</option>
+                    <option value="month" selected>本月</option>
+                    <option value="year">今年</option>
+                    <option value="all">全部</option>
+                </select>
+                
+                <input type="number" id="filter-limit" placeholder="最近N笔" value="50" min="1" max="1000" onchange="loadOrders()">
+                
+                <button onclick="loadOrders()" class="btn btn-primary">查询</button>
+            </div>
+            
+            <!-- 订单表格 -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>平仓时间</th>
+                            <th>币种</th>
+                            <th>方向</th>
+                            <th>数量</th>
+                            <th>开仓价</th>
+                            <th>平仓价</th>
+                            <th>杠杆</th>
+                            <th>手续费</th>
+                            <th>净利润</th>
+                            <th>收益率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-body">
+                        <tr>
+                            <td colspan="10" class="no-data">暂无交易记录</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 收益图表 -->
+        <section class="card chart-section">
+            <h2>收益趋势</h2>
+            <div class="chart-container">
+                <canvas id="pnl-chart"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
