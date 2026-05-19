@@ -6,13 +6,13 @@ echo "========================================="
 echo ""
 
 # 检查Docker是否运行
-if ! docker info &> /dev/null; then
+if ! sudo docker info &> /dev/null; then
     echo "❌ 错误: Docker 服务未运行"
     exit 1
 fi
 
 # 检查容器是否运行
-if ! docker compose ps | grep -q "Up"; then
+if ! sudo docker compose ps 2>/dev/null | grep -q "Up"; then
     echo "ℹ️  没有运行中的容器"
     exit 0
 fi
@@ -27,7 +27,7 @@ fi
 
 echo ""
 echo "🛑 正在停止容器..."
-docker compose down
+sudo docker compose down
 
 if [ $? -eq 0 ]; then
     echo ""
@@ -41,5 +41,5 @@ if [ $? -eq 0 ]; then
 else
     echo ""
     echo "❌ 停止失败"
-    docker compose logs --tail=20
+    sudo docker compose logs --tail=20
 fi
