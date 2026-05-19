@@ -4,7 +4,7 @@ flask-cors>=4.0.0
 ccxt>=4.0.0
 pandas>=2.1.0
 numpy>=1.26.0
-ta-lib==0.4.28
+pandas-ta>=0.3.14b0
 apscheduler>=3.10.0
 python-dotenv>=1.0.0
 simple-websocket>=1.0.0
