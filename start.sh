@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "========================================="
-echo "  OKX量化交易系统 - 启动脚本"
+echo "  OKX量化交易系统 - Docker Compose V2 启动"
 echo "========================================="
 echo ""
 
@@ -21,37 +21,89 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-# 检查Docker Compose是否安装
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ 错误: Docker Compose 未安装"
-    echo "请先安装 Docker Compose: https://docs.docker.com/compose/install/"
+# 检查Docker Compose V2是否安装
+if ! docker compose version &> /dev/null; then
+    echo "❌ 错误: Docker Compose V2 未安装"
+    echo "请确保 Docker 版本 >= 20.10"
+    echo "或访问: https://docs.docker.com/compose/install/"
     exit 1
 fi
 
-echo "✅ 检查通过，开始启动..."
+# 检查Docker是否运行
+if ! docker info &> /dev/null; then
+    echo "❌ 错误: Docker 服务未运行"
+    echo "请启动 Docker"
+    exit 1
+fi
+
+echo "✅ Docker版本: $(docker --version)"
+echo "✅ Docker Compose版本: $(docker compose version | head -n 1)"
+echo ""
+
+echo "🚀 开始启动系统..."
 echo ""
 
 # 创建数据目录
 mkdir -p data
+echo "📁 数据目录已就绪"
 
-# 启动服务
-echo "🚀 启动Docker容器..."
-docker-compose up -d
+# 检查是否有旧容器在运行
+if docker compose ps | grep -q "Up"; then
+    echo "⚠️  检测到运行中的容器，先停止..."
+    docker compose down
+    echo ""
+fi
+
+# 构建并启动服务
+echo "🔨 正在构建Docker镜像..."
+docker compose build
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ 镜像构建失败"
+    echo "请查看上方错误信息"
+    echo ""
+    exit 1
+fi
+
+echo ""
+echo "🚀 正在启动Docker容器..."
+docker compose up -d
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ 容器启动失败"
+    echo "请查看上方错误信息"
+    echo ""
+    exit 1
+fi
 
 # 等待服务启动
-echo "⏳ 等待服务启动..."
-sleep 5
+echo ""
+echo "⏳ 等待服务启动（15秒）..."
+sleep 15
 
 # 检查服务状态
-if docker-compose ps | grep -q "Up"; then
+echo ""
+echo "🔍 验证服务状态..."
+docker compose ps
+
+echo ""
+if docker compose ps | grep -q "Up"; then
     echo ""
     echo "========================================="
     echo "  ✅ 系统启动成功！"
     echo "========================================="
     echo ""
     echo "📊 Web界面: http://localhost:5000"
-    echo "📝 查看日志: docker-compose logs -f"
-    echo "🛑 停止服务: docker-compose down"
+    echo ""
+    echo "📝 常用命令："
+    echo "  查看日志: docker compose logs -f"
+    echo "  停止服务: docker compose down"
+    echo "  重启服务: docker compose restart"
+    echo "  查看状态: docker compose ps"
+    echo ""
+    echo "💡 提示：首次启动需要一些时间初始化数据库"
     echo ""
 else
     echo ""
@@ -59,5 +111,11 @@ else
     echo "  ❌ 启动失败，请查看日志"
     echo "========================================="
     echo ""
-    docker-compose logs
+    docker compose logs --tail=50
+    echo ""
+    echo "常见问题："
+    echo "1. 检查 .env 文件配置是否正确"
+    echo "2. 确认端口 5000 未被占用"
+    echo "3. 查看完整日志: docker compose logs"
+    echo ""
 fi

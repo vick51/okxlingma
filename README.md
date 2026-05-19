@@ -86,15 +86,15 @@ chmod +x start.sh
 ./start.sh
 ```
 
-**或使用Docker Compose命令**:
+**或使用Docker Compose命令（V2）**:
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 #### 4. 查看日志
 
 ```bash
-docker-compose logs -f
+docker compose logs -f
 ```
 
 #### 5. 访问Web界面
@@ -104,7 +104,7 @@ docker-compose logs -f
 #### 6. 停止服务
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ### 方式二：Python直接运行
@@ -272,7 +272,7 @@ okx-trading-system/
 编辑 `.env` 文件中的配置项，然后重启容器：
 
 ```bash
-docker-compose restart
+docker compose restart
 ```
 
 ### Q2: 数据库文件在哪里？
@@ -283,10 +283,10 @@ docker-compose restart
 
 ```bash
 # 实时日志
-docker-compose logs -f
+docker compose logs -f
 
 # 最近100行
-docker-compose logs --tail=100
+docker compose logs --tail=100
 ```
 
 ### Q4: 邮件收不到怎么办？
@@ -295,7 +295,7 @@ docker-compose logs --tail=100
 2. Outlook邮箱需启用"应用专用密码"，不能使用登录密码
 3. 查看日志确认是否有发送错误：
    ```bash
-   docker-compose logs | grep "邮件"
+   docker compose logs | grep "邮件"
    ```
 
 ### Q5: 如何备份数据？

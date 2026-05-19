@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo =========================================
-echo   OKX量化交易系统 - Docker Compose 停止
+echo   OKX量化交易系统 - Docker Compose V2 停止
 echo =========================================
 echo.
 
@@ -14,7 +14,7 @@ if %errorlevel% neq 0 (
 )
 
 REM 检查容器是否运行
-docker-compose ps | findstr "Up" >nul
+docker compose ps | findstr "Up" >nul
 if %errorlevel% neq 0 (
     echo [提示] 没有运行中的容器
     pause
@@ -32,7 +32,7 @@ if /i not "%confirm%"=="y" (
 
 echo.
 echo [停止] 正在停止容器...
-docker-compose down
+docker compose down
 
 if %errorlevel% equ 0 (
     echo.
@@ -46,7 +46,7 @@ if %errorlevel% equ 0 (
 ) else (
     echo.
     echo [错误] 停止失败
-    docker-compose logs --tail=20
+    docker compose logs --tail=20
 )
 
 pause

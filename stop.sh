@@ -1,61 +1,45 @@
-@echo off
-echo =========================================
-echo   OKX量化交易系统 - 启动脚本
-echo =========================================
-echo.
+#!/bin/bash
 
-REM 检查.env文件是否存在
-if not exist .env (
-    echo [错误] .env 文件不存在
-    echo 请先复制示例配置并填写您的API密钥:
-    echo   copy .env.example .env
-    echo 然后编辑 .env 文件
-    pause
-    exit /b 1
-)
+echo "========================================="
+echo "  OKX量化交易系统 - Docker Compose V2 停止"
+echo "========================================="
+echo ""
 
-REM 检查Docker是否安装
-where docker >nul 2>nul
-if %errorlevel% neq 0 (
-    echo [错误] Docker 未安装
-    echo 请先安装 Docker: https://docs.docker.com/desktop/windows/install/
-    pause
-    exit /b 1
-)
+# 检查Docker是否运行
+if ! docker info &> /dev/null; then
+    echo "❌ 错误: Docker 服务未运行"
+    exit 1
+fi
 
-echo [检查通过] 开始启动...
-echo.
+# 检查容器是否运行
+if ! docker compose ps | grep -q "Up"; then
+    echo "ℹ️  没有运行中的容器"
+    exit 0
+fi
 
-REM 创建数据目录
-if not exist data mkdir data
+echo "⚠️  即将停止OKX量化交易系统"
+echo ""
+read -p "确认停止？(y/n): " confirm
+if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+    echo "❌ 操作已取消"
+    exit 0
+fi
 
-REM 启动服务
-echo [启动] 正在启动Docker容器...
-docker-compose up -d
+echo ""
+echo "🛑 正在停止容器..."
+docker compose down
 
-REM 等待服务启动
-echo [等待] 等待服务启动...
-timeout /t 5 /nobreak >nul
-
-REM 检查服务状态
-docker-compose ps | findstr "Up" >nul
-if %errorlevel% equ 0 (
-    echo.
-    echo =========================================
-    echo   [成功] 系统启动成功！
-    echo =========================================
-    echo.
-    echo Web界面: http://localhost:5000
-    echo 查看日志: docker-compose logs -f
-    echo 停止服务: docker-compose down
-    echo.
-) else (
-    echo.
-    echo =========================================
-    echo   [错误] 启动失败，请查看日志
-    echo =========================================
-    echo.
-    docker-compose logs
-)
-
-pause
+if [ $? -eq 0 ]; then
+    echo ""
+    echo "========================================="
+    echo "  ✅ 系统已停止"
+    echo "========================================="
+    echo ""
+    echo "💾 数据已保存至 data/ 目录"
+    echo "🔄 下次启动时会自动恢复"
+    echo ""
+else
+    echo ""
+    echo "❌ 停止失败"
+    docker compose logs --tail=20
+fi
