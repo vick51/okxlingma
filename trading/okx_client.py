@@ -36,24 +36,31 @@ class OKXClient:
             raise ValueError("请配置OKX_PASSPHRASE")
         
         try:
+            logger.info(f"正在初始化OKX客户端...")
+            logger.debug(f"API Key: {Config.OKX_API_KEY[:10] if Config.OKX_API_KEY else None}...")
+            
             self.exchange = ccxt.okx({
-                'apiKey': str(Config.OKX_API_KEY),
-                'secret': str(Config.OKX_SECRET_KEY),
-                'password': str(Config.OKX_PASSPHRASE),
+                'apiKey': str(Config.OKX_API_KEY).strip(),
+                'secret': str(Config.OKX_SECRET_KEY).strip(),
+                'password': str(Config.OKX_PASSPHRASE).strip(),
                 'options': {
-                    'defaultType': 'swap',  # 永续合约
-                    'adjustForTimeDifference': True
+                    'defaultType': 'swap',
+                    'adjustForTimeDifference': True,
                 },
                 'timeout': 30000,
                 'enableRateLimit': True,
             })
+            
+            logger.info(f"OKX对象创建成功")
             self.symbol = Config.SYMBOL
             self.leverage = Config.LEVERAGE
             
             # 测试连接
             self._test_connection()
         except Exception as e:
+            import traceback
             logger.error(f"❌ OKX客户端初始化失败: {e}")
+            logger.error(f"错误详情: {traceback.format_exc()}")
             raise
     
     def _test_connection(self):
